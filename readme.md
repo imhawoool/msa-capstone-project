@@ -50,4 +50,120 @@ SAGA 패턴이란 마이크로서비스들끼리 이벤트를 주고 받아 특�
 - Kafka에 접속하여 이벤트 확인
 <img width="1186" alt="스크린샷 2022-10-24 오전 11 14 05" src="https://user-images.githubusercontent.com/115772322/197435566-e66e34ec-7267-4c46-a110-c1bc52610b90.png">
 
+---
+#### CQRS
+주문 발생, 결제 승인, 결제 취소, 배달 시작, 배달 취소 시 고객은 OrderInfo(ReadModel)을 통해 주문상태를 중간중간 조회할 수 있다.
+비동기식으로 처리되어 이벤트 기반의 Kafka를 통해 처리되어 별도 Table에 관리한다.
+<br>
+- Read Model CRUD 상세설계
+![image](https://user-images.githubusercontent.com/115772322/197447342-0e106402-97d8-4603-a94c-475aa67ee924.png)
+```
+    @StreamListener(KafkaProcessor.INPUT)
+    public void whenOrdered_then_CREATE_1 (@Payload Ordered ordered) {
+        try {
+
+            if (!ordered.validate()) return;
+
+            // view 객체 생성
+            OrderInfo orderInfo = new OrderInfo();
+            // view 객체에 이벤트의 Value 를 set 함
+            orderInfo.setId(ordered.getId());
+            orderInfo.setOrderStatus("Ordered");
+            // view 레파지 토리에 save
+            orderInfoRepository.save(orderInfo);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+```
+```
+    @StreamListener(KafkaProcessor.INPUT)
+    public void whenOrderCanceled_then_UPDATE_1(@Payload OrderCanceled orderCanceled) {
+        try {
+            if (!orderCanceled.validate()) return;
+                // view 객체 조회
+            Optional<OrderInfo> orderInfoOptional = orderInfoRepository.findById(orderCanceled.getId());
+
+            if( orderInfoOptional.isPresent()) {
+                 OrderInfo orderInfo = orderInfoOptional.get();
+            // view 객체에 이벤트의 eventDirectValue 를 set 함
+                orderInfo.setOrderStatus("OrderCanceled");    
+                // view 레파지 토리에 save
+                 orderInfoRepository.save(orderInfo);
+                }
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+```    
+```
+    @StreamListener(KafkaProcessor.INPUT)
+    public void whenPaymentCanceled_then_UPDATE_2(@Payload PaymentCanceled paymentCanceled) {
+        try {
+            if (!paymentCanceled.validate()) return;
+                // view 객체 조회
+            Optional<OrderInfo> orderInfoOptional = orderInfoRepository.findById(Long.valueOf(paymentCanceled.getOrderId()));
+
+            if( orderInfoOptional.isPresent()) {
+                 OrderInfo orderInfo = orderInfoOptional.get();
+            // view 객체에 이벤트의 eventDirectValue 를 set 함
+                orderInfo.setOrderStatus("PaymentCanceled");    
+                // view 레파지 토리에 save
+                 orderInfoRepository.save(orderInfo);
+                }
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+```
+```
+    @StreamListener(KafkaProcessor.INPUT)
+    public void whenPaymentApproved_then_UPDATE_4(@Payload PaymentApproved paymentApproved) {
+        try {
+            if (!paymentApproved.validate()) return;
+                // view 객체 조회
+            Optional<OrderInfo> orderInfoOptional = orderInfoRepository.findById(Long.valueOf(paymentApproved.getOrderId()));
+
+            if( orderInfoOptional.isPresent()) {
+                 OrderInfo orderInfo = orderInfoOptional.get();
+            // view 객체에 이벤트의 eventDirectValue 를 set 함
+                orderInfo.setOrderStatus("PaymentApproved");    
+                // view 레파지 토리에 save
+                 orderInfoRepository.save(orderInfo);
+                }
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+```
+```
+    @StreamListener(KafkaProcessor.INPUT)
+    public void whenDeliveryStarted_then_UPDATE_5(@Payload DeliveryStarted deliveryStarted) {
+        try {
+            if (!deliveryStarted.validate()) return;
+                // view 객체 조회
+            Optional<OrderInfo> orderInfoOptional = orderInfoRepository.findById(Long.valueOf(deliveryStarted.getOrderId()));
+
+            if( orderInfoOptional.isPresent()) {
+                 OrderInfo orderInfo = orderInfoOptional.get();
+            // view 객체에 이벤트의 eventDirectValue 를 set 함
+                orderInfo.setOrderStatus("DeliveryStarted");    
+                // view 레파지 토리에 save
+                 orderInfoRepository.save(orderInfo);
+                }
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+```
 
