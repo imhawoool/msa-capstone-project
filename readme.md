@@ -42,13 +42,13 @@ SAGA 패턴이란 마이크로서비스들끼리 이벤트를 주고 받아 특�
 - 주문이 취소될 경우(Order Service - ordercanceled(event)) publish -> 주문결제가 취소된다. (Payment - CancelPayment(Polish)) Subscribe
 <br>
 - 주문 생성
-<img width="960" alt="주문생성" src="https://user-images.githubusercontent.com/115772322/197435954-fa78862f-d1d2-4182-b40e-ba3b2b681d26.png">
+<img width="960" src="https://user-images.githubusercontent.com/115772322/197435954-fa78862f-d1d2-4182-b40e-ba3b2b681d26.png">
 <br>
 - 주문 취소
-<img width="665" alt="주문취소" src="https://user-images.githubusercontent.com/115772322/197435970-62094945-e7f8-41b9-a25a-ae1c16983e1f.png">
+<img width="665" src="https://user-images.githubusercontent.com/115772322/197435970-62094945-e7f8-41b9-a25a-ae1c16983e1f.png">
 <br>
 - Kafka에 접속하여 이벤트 확인
-<img width="1186" alt="스크린샷 2022-10-24 오전 11 14 05" src="https://user-images.githubusercontent.com/115772322/197435566-e66e34ec-7267-4c46-a110-c1bc52610b90.png">
+<img width="1186" src="https://user-images.githubusercontent.com/115772322/197435566-e66e34ec-7267-4c46-a110-c1bc52610b90.png">
 
 ---
 #### CQRS
